@@ -12,6 +12,8 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [ # Optional
+    "matplotlib",
+    "numpy",
 ]
 dynamic = ["version"]
 
