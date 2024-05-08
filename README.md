@@ -86,5 +86,5 @@ for iteration in range(3):
 Here is the ouput.
 
 <center class="half">
-    <img src="https://github.com/huang-lihao/subdivision-hole-filler/blob/main/iso.png" width="45%"/><img src="https://github.com/huang-lihao/subdivision-hole-filler/blob/main/side.png" width="45%"/>
+    <img src="https://github.com/huang-lihao/subdivision-hole-filler/raw/main/iso.png" width="45%"/><img src="https://github.com/huang-lihao/subdivision-hole-filler/raw/main/side.png" width="45%"/>
 </center>
