@@ -21,7 +21,7 @@ pip install subdivision-hole-filler
 
 Usage
 ----------------------
-Run the following script to parse the mtx file `inner.mtx`.
+Run the following script to fill a hole.
 ```python
 from subdivision_hole_filler import .
 
