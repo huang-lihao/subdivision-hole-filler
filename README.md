@@ -54,7 +54,6 @@ for d in range(3):
     boundaries[d*2] = bd
 
 for d in range(3):
-    bd = Boundary()
     def coord(u: float, d=d):
         phi = (1.0 - u / 2.0) * np.pi / 2.0
         x = R + r - R * np.cos(phi)
@@ -65,12 +64,15 @@ for d in range(3):
         c[(d + 1) % 3] = x
         c[(d + 2) % 3] = y
         return c
-    bd.coord = coord
+    
     def deriv(u: float, d=d):
         vec = np.zeros(3)
         vec[d] = 1
         return np.array(vec)
-    bd.deriv = deriv
+
+    bd = Boundary()
+    bd.coord = coord # A function of parametric coord `u` in [0.0, 2.0], which defines the coordinate of a point on the boundary 
+    bd.deriv = deriv # A function of parametric coord `u` in [0.0, 2.0], which defines the cross boundary derivative of a point on the boundary, poining to the inside
     boundaries[(d + 1) % 3 * 2 + 1] = bd
 
 filler = NsidedHoleFiller(boundaries)
