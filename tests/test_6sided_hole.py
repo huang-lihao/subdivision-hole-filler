@@ -61,6 +61,7 @@ class Test6SidedHole:
 
         for iteration in range(3):
             filler.cmc_subdiv_for_1step(iteration=iteration)
+        filler.plot_faces("out.png")
 
 if __name__ == "__main__":
     pytest.main(["-s", "-k", "Test6SidedHole"])

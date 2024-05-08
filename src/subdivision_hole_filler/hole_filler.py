@@ -55,9 +55,10 @@ class NsidedHoleFiller:
         self.points: list[Point] = []
         self.faces: list[Face] = []
     
-    def plot_faces(self):
+    def plot_faces(self, output_path: str = None):
         faces = self.faces
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+        fig.set_size_inches(5, 5)
         for face in faces:
             coord = [pt.coord for pt in face.points]
             coord = np.array([[coord[0], coord[1]], [coord[3], coord[2]]])
@@ -67,8 +68,12 @@ class NsidedHoleFiller:
             ax.plot_surface(X,Y,Z)
         plt.axis('equal')
         ax.set_proj_type('ortho')
-        ax.view_init(elev=0, azim=0)
-        plt.show()
+        ax.view_init(elev=np.arctan(np.sqrt(0.5))/np.pi*180, azim=45)
+        # ax.view_init(elev=0, azim=0)
+        if output_path is not None:
+            plt.savefig(output_path)
+        else:
+            plt.show()
 
     def gen_initial_mesh(self, center_point: np.ndarray) -> None:
         r"""
