@@ -49,8 +49,8 @@ for d in range(3):
         return np.array(vec)
 
     bd = Boundary()
-    bd.coord = coord
-    bd.deriv = deriv
+    bd.coord = coord # A function of parametric coord `u` in [0.0, 2.0], which defines the coordinate of a point on the boundary 
+    bd.deriv = deriv # A function of parametric coord `u` in [0.0, 2.0], which defines the cross boundary derivative of a point on the boundary, poining to the inside
     boundaries[d*2] = bd
 
 for d in range(3):
