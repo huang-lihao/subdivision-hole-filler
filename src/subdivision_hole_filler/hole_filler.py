@@ -25,6 +25,7 @@ class Point:
         assert len(boundary_u_tuples) in [0, 1, 2]
         self.neighbours: list[Point] = []
         self.faces: list[Face] = []
+        self.id = -1
 
 
 class Face:
@@ -65,7 +66,8 @@ class NsidedHoleFiller:
             X = coord[:, :, 0]
             Y = coord[:, :, 1]
             Z = coord[:, :, 2]
-            ax.plot_surface(X,Y,Z)
+            ax.plot_surface(X,Y,Z,color="none", edgecolor="black")
+        ax.scatter([self.center_point[0]], [self.center_point[1]], [self.center_point[2]])
         plt.axis('equal')
         ax.set_proj_type('ortho')
         ax.view_init(elev=np.arctan(np.sqrt(0.5))/np.pi*180, azim=45)
@@ -111,6 +113,7 @@ class NsidedHoleFiller:
         """
         boundaries = self.boundaries
         num = len(boundaries)
+        self.center_point = center_point
 
         # check adjacent boundaries are linked together
         for i in range(num):
@@ -237,7 +240,7 @@ class NsidedHoleFiller:
                 [1/2*(point.coord + q.coord) for q in point.neighbours],
                 axis=0
             )
-            n = 4
+            n = max(len(point.neighbours), 4)
             point.coord = (F + 2*R + (n - 3) * point.coord) / n
                 
 
