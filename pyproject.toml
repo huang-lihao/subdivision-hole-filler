@@ -3,7 +3,7 @@ name = "subdivision-hole-filler"
 authors = [
   { name="HUANG Lihao", email="huang-lihao@outlook.com" },
 ]
-description = "A python package to fill N-sided holes using combined subdivision schemes."
+description = "A python package to fill N-sided holes using combined subdivision schemes, based on Catmull-Clark subdivison."
 readme = "README.md"
 requires-python = ">=3.7"
 classifiers = [

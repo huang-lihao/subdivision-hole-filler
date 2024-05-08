@@ -7,7 +7,7 @@
 [![GitHub License](https://img.shields.io/github/license/huang-lihao/subdivision-hole-filler)](https://github.com/huang-lihao/subdivision-hole-filler/blob/main/LICENSE)
 
 
-A python package to fill N-sided holes using combined subdivision schemes.
+A python package to fill N-sided holes using combined subdivision schemes, based on Catmull-Clark subdivison.
 
 See [Levin, Adi. “Filling N-sided Holes Using Combined Subdivision Schemes.” (2000).](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=925ab5e9375ae3b3d64fb9870e5d08d7d50141d4)
 
