@@ -9,7 +9,7 @@
 
 A python package to fill N-sided holes using combined subdivision schemes, based on Catmull-Clark subdivison.
 
-See [Levin, Adi. “Filling N-sided Holes Using Combined Subdivision Schemes.” (2000).](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=925ab5e9375ae3b3d64fb9870e5d08d7d50141d4)
+See [Levin, Adi. “Filling N-sided Holes Using Combined Subdivision Schemes.” (2000).](https://github.com/huang-lihao/subdivision-hole-filler/blob/main/Levin_2000_Filling%20N-sided%20Holes%20Using%20Combined%20Subdivision%20Schemes.pdf)
 
 
 Install
