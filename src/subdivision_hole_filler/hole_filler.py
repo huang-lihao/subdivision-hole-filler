@@ -69,8 +69,9 @@ class NsidedHoleFiller:
         plt.axis('equal')
         ax.set_proj_type('ortho')
         ax.view_init(elev=np.arctan(np.sqrt(0.5))/np.pi*180, azim=45)
-        # ax.view_init(elev=0, azim=0)
+        ax.view_init(elev=0, azim=0)
         if output_path is not None:
+            plt.tight_layout()
             plt.savefig(output_path)
         else:
             plt.show()

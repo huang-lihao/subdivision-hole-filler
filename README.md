@@ -85,5 +85,5 @@ for iteration in range(3):
 
 Here is the ouput.
 
-![avatar](side.png)
-![avatar](iso.png)
+<img src=https://github.com/huang-lihao/subdivision-hole-filler/blob/main/iso.png width=45% />
+<img src=https://github.com/huang-lihao/subdivision-hole-filler/blob/main/side.png width=45% />
