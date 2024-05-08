@@ -27,9 +27,11 @@ class Point:
         self.faces: list[Face] = []
         self.id = -1
 
+        self.parametric_coord_in_sub_face: dict[int, np.ndarray] = {}
+
 
 class Face:
-    def __init__(self, points: list[Point]) -> None:
+    def __init__(self, points: list[Point], sub_face: int) -> None:
         assert len(points) == 4
         self.points = points
         for i in range(4):
@@ -38,9 +40,18 @@ class Face:
                 j = (i + d) % 4
                 if points[i] not in points[i].neighbours:
                     points[i].neighbours.append(points[j])
+        self.sub_face = sub_face
+        
     
     def center_point(self) -> Point:
-        return Point(*np.mean([p.coord for p in self.points], axis=0))
+        point = Point(*np.mean([p.coord for p in self.points], axis=0))
+        point.parametric_coord_in_sub_face[self.sub_face] = 0.25 * (
+            self.points[0].parametric_coord_in_sub_face[self.sub_face] +
+            self.points[1].parametric_coord_in_sub_face[self.sub_face] +
+            self.points[2].parametric_coord_in_sub_face[self.sub_face] +
+            self.points[3].parametric_coord_in_sub_face[self.sub_face]
+        )
+        return point
 
 
 def get_edge_tuple(point1: Point, point2: Point, points: list[Point]) -> tuple[Point, Point]:
@@ -55,6 +66,7 @@ class NsidedHoleFiller:
         self.boundaries = boundaries
         self.points: list[Point] = []
         self.faces: list[Face] = []
+        self.iteration = 0
     
     def plot_faces(self, output_path: str = None):
         faces = self.faces
@@ -78,7 +90,7 @@ class NsidedHoleFiller:
         else:
             plt.show()
 
-    def gen_initial_mesh(self, center_point: np.ndarray) -> None:
+    def gen_initial_mesh(self, center_point_coord: np.ndarray) -> None:
         r"""
         Generate the initial mesh as in Levin 1999 paper.
 
@@ -108,12 +120,11 @@ class NsidedHoleFiller:
         Args:
             boundaries (list[Boundary]):
                 Boundaries having exact coordinates and tangential direction
-            center_point (np.ndarray):
-                The center point to generate the initial mesh
+            center_point_coord (np.ndarray):
+                The center point coordinates to generate the initial mesh
         """
         boundaries = self.boundaries
         num = len(boundaries)
-        self.center_point = center_point
 
         # check adjacent boundaries are linked together
         for i in range(num):
@@ -129,16 +140,25 @@ class NsidedHoleFiller:
             left_boundary = boundaries[l]
             points.append(Point(*boundary.coord(0.0), [(left_boundary, 2.0), (boundary, 0.0)]))
             points.append(Point(*boundary.coord(1.0), [(boundary, 1.0)]))
-        points.append(Point(*center_point))
+        points.append(Point(*center_point_coord))
         center_point = points[-1]
+        self.center_point = center_point
 
         for i in range(num):
-            faces.append(Face([
+            vertices = [
                 points[2 * i],
                 points[(2 * i + 1) % (2* num)],
                 center_point,
                 points[(2 * i -1) % (2 * num)]
-            ]))
+            ]
+            vertices[0].parametric_coord_in_sub_face[i] = np.array([0.0, 0.0])
+            vertices[1].parametric_coord_in_sub_face[i] = np.array([1.0, 0.0])
+            vertices[2].parametric_coord_in_sub_face[i] = np.array([1.0, 1.0])
+            vertices[3].parametric_coord_in_sub_face[i] = np.array([0.0, 1.0])
+            faces.append(Face(
+                points=vertices,
+                sub_face=i
+            ))
         self.points = points
         self.faces = faces
     
@@ -149,6 +169,7 @@ class NsidedHoleFiller:
             point.faces = []
 
     def cmc_subdiv_for_1step(self, iteration: int) -> None:
+        assert iteration == self.iteration
         step = 2**(-iteration)
         points = self.points
         faces = self.faces
@@ -227,6 +248,10 @@ class NsidedHoleFiller:
                 *coord,
                 boundary_u_tuples=boundary_u_tuples,
             )
+            for face in edge_faces[edge]:
+                edge_point.parametric_coord_in_sub_face[face.sub_face] = 0.5 * (
+                    edge[0].parametric_coord_in_sub_face[face.sub_face] + edge[1].parametric_coord_in_sub_face[face.sub_face]
+                )
             edge_points[edge] = edge_point
             new_points.append(edge_points[edge])
         
@@ -254,7 +279,8 @@ class NsidedHoleFiller:
                     edge = get_edge_tuple(face.points[i], face.points[j], points)
                     mid.append(edge_points[edge])
                 new_faces.append(Face(
-                    [face.points[i], mid[0], face_points[face], mid[1]]
+                    points = [face.points[i], mid[0], face_points[face], mid[1]],
+                    sub_face = face.sub_face
                 ))
         
         # sample boundary points
@@ -265,3 +291,23 @@ class NsidedHoleFiller:
 
         self.faces = new_faces
         self.points = new_points
+        self.iteration += 1
+    
+    def gen_bspline_surfaces(self) -> list[list[np.ndarray]]:
+        bspline_surfaces = []
+        num = len(self.boundaries)
+        for n in range(num):
+            points_in_sub_face = []
+            for point in self.points:
+                if n not in point.parametric_coord_in_sub_face: continue
+                points_in_sub_face.append(point)
+                        
+            points_in_sub_face = sorted(
+                points_in_sub_face,
+                key=lambda p: (
+                    p.parametric_coord_in_sub_face[n][0],
+                    p.parametric_coord_in_sub_face[n][1]
+                )
+            )
+            bspline_surfaces.append(points_in_sub_face)
+        return bspline_surfaces
