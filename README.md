@@ -9,7 +9,7 @@
 
 A python package to fill N-sided holes using combined subdivision schemes.
 
-See [Levin, Adi. “Filling N-sided Holes Using Combined Subdivision Schemes.” (2000).](https://apps.dtic.mil/dtic/tr/fulltext/u2/p012032.pdf)
+See [Levin, Adi. “Filling N-sided Holes Using Combined Subdivision Schemes.” (2000).](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=925ab5e9375ae3b3d64fb9870e5d08d7d50141d4)
 
 
 Install
