@@ -5,6 +5,23 @@ See Levin 1999 paper: "Filling an N-sided hole using combined subdivision scheme
 
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.interpolate import PPoly
+
+
+catmull_clark_coefs = {}
+
+def get_catmull_clark_coef(m):
+    if m in catmull_clark_coefs:
+        return catmull_clark_coefs[m]
+    k = np.cos(np.pi / m)
+    pp = PPoly(np.array([[1, 0, 4 * k ** 2 - 3, - 2 * k]]).T, [0, 10])
+    x = pp.roots()[0]
+    W = x ** 2 + 2 * k * x - 3
+    alpha = 1
+    gamma = (k * x + 2 * k ** 2 - 1)/(x**2*(k*x + 1))
+    beta = - gamma
+    catmull_clark_coefs[m] = (W, alpha, beta, gamma)
+    return catmull_clark_coefs[m]
 
 
 class Boundary:
@@ -38,7 +55,7 @@ class Face:
             points[i].faces.append(self)
             for d in [-1, +1]:
                 j = (i + d) % 4
-                if points[i] not in points[i].neighbours:
+                if points[j] not in points[i].neighbours:
                     points[i].neighbours.append(points[j])
         self.sub_face = sub_face
         
@@ -79,7 +96,7 @@ class NsidedHoleFiller:
             Y = coord[:, :, 1]
             Z = coord[:, :, 2]
             ax.plot_surface(X,Y,Z,color="none", edgecolor="black")
-        ax.scatter([self.center_point[0]], [self.center_point[1]], [self.center_point[2]])
+        ax.scatter([self.center_point.coord[0]], [self.center_point.coord[1]], [self.center_point.coord[2]])
         plt.axis('equal')
         ax.set_proj_type('ortho')
         ax.view_init(elev=np.arctan(np.sqrt(0.5))/np.pi*180, azim=45)
@@ -265,9 +282,9 @@ class NsidedHoleFiller:
                 [1/2*(point.coord + q.coord) for q in point.neighbours],
                 axis=0
             )
-            n = max(len(point.neighbours), 4)
-            point.coord = (F + 2*R + (n - 3) * point.coord) / n
-                
+            m = max(len(point.neighbours), 4)
+            W, alpha, beta, gamma = get_catmull_clark_coef(m)
+            point.coord = alpha * R + beta * F + gamma * point.coord
 
         # Form faces in the new mesh
         self.clear_points(points)
