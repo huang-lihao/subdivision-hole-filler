@@ -278,13 +278,17 @@ class NsidedHoleFiller:
                 [face_points[face].coord for face in point.faces],
                 axis=0
             )
-            R = np.mean(
+            E = np.mean(
                 [1/2*(point.coord + q.coord) for q in point.neighbours],
                 axis=0
             )
+            P = point.coord
             m = max(len(point.neighbours), 4)
             W, alpha, beta, gamma = get_catmull_clark_coef(m)
-            point.coord = alpha * R + beta * F + gamma * point.coord
+            alpha = 2 * (m - 1) / (3 * m)
+            beta = 1 * (m - 1) / (3 * m)
+            gamma = 1 / m
+            point.coord = alpha * E + beta * F + gamma * P
 
         # Form faces in the new mesh
         self.clear_points(points)
