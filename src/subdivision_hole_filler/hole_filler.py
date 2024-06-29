@@ -86,7 +86,7 @@ class NsidedHoleFiller:
         self.faces: list[Face] = []
         self.iteration = 0
     
-    def plot_faces(self, output_path: str = None, boundary_colors: list[str] = None):
+    def plot_faces(self, output_path: str = None, boundary_colors: list[str] = None, facecolor: str = "none", show_quiver: bool = True):
         faces = self.faces
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
         fig.set_size_inches(3, 3)
@@ -96,7 +96,7 @@ class NsidedHoleFiller:
             X = coord[:, :, 0]
             Y = coord[:, :, 1]
             Z = coord[:, :, 2]
-            ax.plot_surface(X,Y,Z,color="none", edgecolor="black", zsort="max", zorder=0)
+            ax.plot_surface(X,Y,Z,color=facecolor, edgecolor="black", zsort="max", zorder=0)
         ax.plot([self.center_point.coord[0]], [self.center_point.coord[1]], [self.center_point.coord[2]], "o", color="darkgreen", zorder=1e10)
 
         if boundary_colors is None:
@@ -107,10 +107,11 @@ class NsidedHoleFiller:
             color = boundary_colors[idx]
             ax.plot(coord[:, 0], coord[:, 1], coord[:, 2], color=color, zorder=1e10)
             indices = np.linspace(0, 100, 5, endpoint=True).astype(int)
-            ax.quiver(
-                coord[indices, 0], coord[indices, 1], coord[indices, 2], deriv[indices, 0], deriv[indices, 1], deriv[indices, 2],
-                length=1, normalize=True, color=color, zorder=1e10,pivot="tip"
-            )
+            if show_quiver:
+                ax.quiver(
+                    coord[indices, 0], coord[indices, 1], coord[indices, 2], deriv[indices, 0], deriv[indices, 1], deriv[indices, 2],
+                    length=1, normalize=True, color=color, zorder=1e10,pivot="tip"
+                )
         plt.axis('equal')
         ax.set_proj_type('ortho')
         ax.view_init(elev=np.arctan(np.sqrt(0.5))/np.pi*180, azim=45)
