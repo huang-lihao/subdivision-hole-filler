@@ -4,6 +4,7 @@ See Levin 1999 paper: "Filling an N-sided hole using combined subdivision scheme
 """
 
 import matplotlib.pyplot as plt
+from matplotlib.colors import LightSource
 import numpy as np
 from scipy.interpolate import PPoly
 
@@ -85,25 +86,41 @@ class NsidedHoleFiller:
         self.faces: list[Face] = []
         self.iteration = 0
     
-    def plot_faces(self, output_path: str = None):
+    def plot_faces(self, output_path: str = None, boundary_colors: list[str] = None):
         faces = self.faces
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-        fig.set_size_inches(5, 5)
+        fig.set_size_inches(3, 3)
         for face in faces:
             coord = [pt.coord for pt in face.points]
             coord = np.array([[coord[0], coord[1]], [coord[3], coord[2]]])
             X = coord[:, :, 0]
             Y = coord[:, :, 1]
             Z = coord[:, :, 2]
-            ax.plot_surface(X,Y,Z,color="none", edgecolor="black")
-        ax.scatter([self.center_point.coord[0]], [self.center_point.coord[1]], [self.center_point.coord[2]])
+            ax.plot_surface(X,Y,Z,color="none", edgecolor="black", zsort="max", zorder=0)
+        ax.plot([self.center_point.coord[0]], [self.center_point.coord[1]], [self.center_point.coord[2]], "o", color="darkgreen", zorder=1e10)
+
+        if boundary_colors is None:
+            boundary_colors = [f"C{i}" for i in range(len(self.boundaries))]
+        for idx, bd in enumerate(self.boundaries):
+            coord = np.array([bd.coord(u) for u in np.linspace(0, 2, 101, endpoint=True)])
+            deriv = np.array([bd.deriv(u) for u in np.linspace(0, 2, 101, endpoint=True)])
+            color = boundary_colors[idx]
+            ax.plot(coord[:, 0], coord[:, 1], coord[:, 2], color=color, zorder=1e10)
+            indices = np.linspace(0, 100, 5, endpoint=True).astype(int)
+            ax.quiver(
+                coord[indices, 0], coord[indices, 1], coord[indices, 2], deriv[indices, 0], deriv[indices, 1], deriv[indices, 2],
+                length=1, normalize=True, color=color, zorder=1e10,pivot="tip"
+            )
         plt.axis('equal')
         ax.set_proj_type('ortho')
         ax.view_init(elev=np.arctan(np.sqrt(0.5))/np.pi*180, azim=45)
-        ax.view_init(elev=0, azim=0)
+        ax.axis('off')
+        # ax.set_visible(False)
         if output_path is not None:
             plt.tight_layout()
-            plt.savefig(output_path)
+            plt.savefig(output_path, dpi=600)
+            import pickle
+            pickle.dump(fig, open(output_path+".pickle", 'wb'))
         else:
             plt.show()
 
